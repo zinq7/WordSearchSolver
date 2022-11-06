@@ -2,61 +2,43 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /* L33TCODE CHALLENGE 210 */
 public class Cheat {
     static List<Tile> tiles = new ArrayList<Tile>();
     static int key = 0;
-    static long CODE = 0;
 
-    public static void main(String[] pos) {
-
+    public static void run(char[][] board) {
         // generate lists
-        List<String> list = new ArrayList<String>();
-        List<String> input = new ArrayList<String>();
+        List<String> allwords = new ArrayList<String>();
         try {
-            // read input file, seperated by spaces
+            // read word list file, seperated by spaces
             Scanner s = new Scanner(new File("wiki-500k.txt"));
-            Scanner b = new Scanner(new File("input.txt"));
             // populate lists
             while (s.hasNext()) {
-                list.add(s.next());
+                allwords.add(s.next());
             }
-            while (b.hasNext()) {
-                input.add(b.next());
-            }
-            // close scanners
-            b.close();
+            // close scanner
             s.close();
-
-        } catch (Exception ex) {
+        } catch (FileNotFoundException ex) {
             System.out.println(ex);
         }
 
-        // convert to string array
-        String[] uhOH = new String[list.size()];
-
+        // initialize array
+        String[] uhOH = new String[allwords.size()];
+        
         // populate from list
-        for (int i = 0; i < list.size(); i++) {
-            uhOH[i] = list.get(i);
-        }
-        list.clear(); // remove the used space?
-
-        // initialize a 4x4 board
-        char[][] board = new char[4][4];
-
-        // populate board based off input
-        for (int i = 0; i < input.size(); i++) {
-            board[i / 4][i % 4] = input.get(i).charAt(0);
+        for (int i = 0; i < allwords.size(); i++) {
+            uhOH[i] = allwords.get(i);
         }
 
-        //run function
+        // run function
         System.out.println(
                 "FINAL ANSWER IS: " +
                         findWords(board, uhOH));
 
-        System.out.println("only took me " + CODE + " operations :)");
     }
 
     public static List<String> findWords(char[][] board, String[] words) {
@@ -86,24 +68,24 @@ public class Cheat {
                 // loop through letters
                 for (Tile t : letters) {
 
-                    // System.out.println("TILE IS " + t);
-
+                    //loop through all of the next letters of the word
                     for (int p = 0; p < possibles.size(); p++) {
 
+                        //check if it's a repeat or adacent
                         if (t.pos.isNear(possibles.get(p).pos) && t.noKeyMatch(possibles.get(p))) {
                             possibles.get(p).save = true; // save it!
                             // pass on every key with a minor addition
                             for (int k = 0; k < t.keys.size(); k++) {
                                 String tempKey = t.keys.get(k);
-                                possibles.get(p).keys.add(tempKey + p);
-                                // System.out.println(possibles.get(p) + " got the key: " + (tempKey+p));
+                                possibles.get(p).keys.add(tempKey + p); //add keys to prevent repetition
                             }
                         }
                     }
-
+                    //remove this item from the list
                     t.save = false;
                 }
 
+                // loop through and remove all that were marked for removal
                 for (int p = 0; p < possibles.size(); p++) {
                     if (!possibles.get(p).save) {
                         possibles.remove(p);
@@ -111,8 +93,10 @@ public class Cheat {
                     }
                 }
 
+                // continue process
                 letters = possibles;
 
+                // make sure that there is a possible solution
                 if (letters.isEmpty()) {
                     continue findword;
                 }
@@ -138,7 +122,6 @@ public class Cheat {
             if (tiles.get(i).c == c) {
                 sols.add(tiles.get(i));
             }
-            CODE++;
         }
         return sols;
     }
